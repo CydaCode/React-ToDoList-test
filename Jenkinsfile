@@ -9,7 +9,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'mai',
+                git branch: 'main',
                     url: 'https://github.com/CydaCode/React-ToDoList-test.git'
             }
         }
