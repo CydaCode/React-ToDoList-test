@@ -1,19 +1,31 @@
-name: Hello world job
- 
-on: 
+name: Build a Nodejs App and push to docker hub
+
+on:
   push:
     branches:
-      - main
+      -main
+  workflow_dispatch:
+
 jobs:
-  hello-world:
+  build-and-push:
+    name: node to docker
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: ['18.x', '20.x', '22.x']
+        os: [ubuntu-latest, window-latest, macOS-latest]
     steps:
-       - name: Echo Hello
-         run: echo "hello world"
+      - name: checkout the repository
+        uses: actions/checkout@v4
+      - name: Set up nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node_version }}
+      - name: Install frontend dependencies
+        run: |
+          cd dive-react-app
+          npm install
+          npm run lint
+          npm run build
+      
  
- 
-  how-are-you:
-     runs-on: ubuntu-latest
-     steps:
-       - name: ask how the person is
-         run: echo "how are you?"    
