@@ -8,6 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                echo "Checking out to github"
                 git branch: 'main',
                 url: 'https://github.com/CydaCode/React-ToDoList-test.git'
             }
