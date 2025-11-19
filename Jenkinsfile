@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image "node:22.21.0-slim"
+            image "node:22.21.0-bullseye"
             args "-u root:root"
         }
     }
@@ -15,22 +15,24 @@ pipeline {
         }
         stage('change directory to dive-react-app') {
             steps {
-                dir('dive-react-app')
-                echo 'installing all frontend dependencies'
-                sh 'npm install'
-                echo 'Running lint for for application'
-                sh 'npm run lint'
-                echo 'running the build'
-                sh 'npm run build'
+                dir('dive-react-app') {
+                    echo 'installing all frontend dependencies'
+                    sh 'npm install'
+                    echo 'Running lint for for application'
+                    sh 'npm run lint'
+                    echo 'running the build'
+                    sh 'npm run build'
+                }
             }
         }
         stage('change directory to backend') {
             steps {
-                dir('backend')
-                echo 'installing backend dependency'
-                sh 'npm install'
-                echo 'starting the backend server'
-                sh 'npm start'
+                dir('backend') {
+                    echo 'installing backend dependency'
+                    sh 'npm install'
+                    echo 'starting the backend server'
+                    sh 'npm start'
+                }
             }
         }
         
