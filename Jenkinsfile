@@ -1,61 +1,71 @@
 pipeline {
-    agent any
-
-    tools {
-        nodejs "NodeJs-1"
+    agent {
+        docker {
+            image "node:22.21.0-slim"
+            args "-u root:root"
+        }
     }
-
     stages {
-
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/CydaCode/React-ToDoList-test.git'
+                url: 'https://github.com/CydaCode/React-ToDoList-test.git'
             }
         }
-
-        stage('Frontend Build') {
+        stage('change directory to dive-react-app') {
             steps {
-                dir('dive-react-app') {
-                    echo "Installing frontend dependencies"
-                    sh 'npm install'
-
-                    echo "Running lint"
-                    sh 'npm run lint'
-
-                    echo "Building frontend"
-                    sh 'npm run build'
+                dir('dive-react-app')
+                echo 'installing all frontend dependencies'
+                sh 'npm install'
+                echo 'Running lint for for application'
+                sh 'npm run lint'
+                echo 'running the build'
+                sh 'npm run build'
+            }
+        }
+        stage('change directory to backend') {
+            steps {
+                dir('backend')
+                echo 'installing backend dependency'
+                sh 'npm install'
+                echo 'starting the backend server'
+                sh 'npm start'
+            }
+        }
+        
+        }
+        stage('Build Application') {
+            steps {
+                sh 'npm run build' // Build the application
+            }
+            post {
+                success {
+                    archiveArtifacts 'dist/**/*' // Archive build artifacts
                 }
             }
         }
-
-        stage('Backend Install') {
+        stage('Deploy to Staging') {
+            when {
+                branch 'main'
+            }
             steps {
-                dir('backend') {
-                    echo "Installing backend dependencies"
-                    sh 'npm install'
-
-                    echo "Running backend tests (instead of starting server)"
-                    sh 'npm test || true'   // prevents failure if no tests exist
-                }
+                sh 'npm run deploy:staging'
             }
         }
-
     }
-
     post {
         always {
-            cleanWs()
+            cleanWs() // Clean workspace
         }
         success {
-            emailext(
+            emailext (
                 subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: "The build ${env.BUILD_URL} completed successfully.",
                 to: "nwacynti25@gmail.com"
             )
         }
         failure {
-            emailext(
+            emailext (
                 subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: "The build ${env.BUILD_URL} failed. Please check the logs.",
                 to: "nwacynti25@gmail.com"
@@ -63,4 +73,3 @@ pipeline {
         }
     }
 }
-
