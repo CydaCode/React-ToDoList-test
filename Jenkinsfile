@@ -1,11 +1,11 @@
 pipeline {
     agent any
-    environment {
-        DOCKER_USERNAME=credentials("DOCKER_USERNAME")
-        DOCKER_PASSWORD=crendetials("DOCKER_PASSWORD")
-        EC2_KEY=credentials("EC2_KEY")
-        EC2_HOST=credentials(EC2_HOST)
-    }
+    // environment {
+    //     DOCKER_USERNAME=credentials("DOCKER_USERNAME")
+    //     DOCKER_PASSWORD=crendetials("DOCKER_PASSWORD")
+    //     EC2_KEY=credentials("EC2_KEY")
+    //     EC2_HOST=credentials(EC2_HOST)
+    // }
     stages {
         stage("Checkout code") {
             steps {
@@ -21,8 +21,14 @@ pipeline {
                 }
             }
             steps {
-                sh 'chmod 777 buildscript.sh'
-                sh './buildscript.sh'
+                withCredentials([
+                    string(credentialsId: 'DOCKER_USERNAME', variable: DOCKER_USERNAME),
+                    string(credentialsId: 'DOCKER_PASSWORD', variable: DOCKER_PASSWORD)
+                ]) {
+                    sh 'chmod 777 buildscript.sh'
+                    sh './buildscript.sh'
+                }
+                
             }
         }
         //stage("Deploy to EC2") {
