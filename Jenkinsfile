@@ -14,19 +14,17 @@ pipeline {
             }
         }
         stage("Build image and push") {
-            agent {
-                docker {
-                    image 'docker:stable'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
+
             steps {
                 withCredentials([
-                    string(credentialsId: 'DOCKER_USERNAME', variable: DOCKER_USERNAME),
-                    string(credentialsId: 'DOCKER_PASSWORD', variable: DOCKER_PASSWORD)
+                    string(credentialsId: 'DOCKER_USERNAME', variable: 'DOCKER_USERNAME'),
+                    string(credentialsId: 'DOCKER_PASSWORD', variable: 'DOCKER_PASSWORD')
                 ]) {
-                    sh 'chmod 777 buildscript.sh'
-                    sh './buildscript.sh'
+                    sh'''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        chmod 777 buildscript.sh
+                        ./buildscript.sh
+                    '''
                 }
                 
             }
