@@ -21,7 +21,6 @@ pipeline {
                     string(credentialsId: 'DOCKER_PASSWORD', variable: 'DOCKER_PASSWORD')
                 ]) {
                     sh'''
-                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
                         chmod 777 buildscript.sh
                         ./buildscript.sh
                     '''
